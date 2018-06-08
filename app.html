@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Management System</title>
+    <!--<script src="gen_obj.js"></script>-->
+</head>
+<body>
+    <div style="border: black 1px solid;" id="add_form">
+        <div>
+            <label>Firstname:</label><input type="text" placeholder="firstname" id="firstname" />
+        </div>
+        <div>
+            <label>Lastname:</label><input type="text" placeholder="lastname" id="lastname" />
+        </div>
+        <div>
+            <label>Email:</label><input type="text" placeholder="email" id="email" />
+        </div>
+        <div>
+            <label>Location:</label><input type="text" placeholder="location" id="location" />
+        </div>
+        <div>
+            <label>Phone:</label><input type="text" placeholder="phone" id="phone" />
+        </div>
+        <div>
+            <label>Batch:</label><input type="text" placeholder="batch" id="batch" />
+        </div>
+        <div>
+            <label>Address:</label>
+            <span>Communication address: <input type="text" placeholder="communication" id="communication" /></span>
+            <span>Permanent address: <input type="text" placeholder="permanent" id="permanent" /></span>
+        </div>
+        <div>
+            <label>Previous Employer:</label><input style="width:200px" type="text" placeholder="previous_employer" id="previous_employer" />
+        </div>
+        <div>
+            <button type="button" id="add">Save</button>
+        </div>
+    </div>
+
+    <br />
+    <table border="1" style="border-collapse: collapse" id = "tbl">
+        <tr id="tr_hdr">
+            <th>Firstname</th>
+            <th>Lastname</th>
+            <th>Email</th>
+            <th>Location</th>
+            <th>Phone</th>
+            <th>Current Class</th>
+            <th>Address</th>
+            <th></th>
+        </tr>
+    </table>
+    <div id="div">
+        <select id="select">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
