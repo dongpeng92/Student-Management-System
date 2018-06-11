@@ -20,7 +20,7 @@ for(var i = 0; i < 100; i++)
         "lastname": "user_" + i + "_lastname",
         "email": "user" + i + "@google.com",
         "location": randomGenLoc(list),
-        "phone": Math.floor(Math.random()*1000000000),
+        "phone": (Math.floor(Math.random()*1000000000)).toString(),
         "batch": batchs[Math.floor(Math.random()*batchs.length)],
         "address": {
             "communication": "Google, " +list[Math.floor(Math.random()*list.length)],
@@ -34,7 +34,7 @@ for(var i = 0; i < 100; i++)
 
 var fs = require("fs");
 
-fs.writeFile('data.json', JSON.stringify(users),  function(err) {
+fs.writeFile('data.json', JSON.stringify(users), function(err) {
     if (err) {
         return console.error(err);
     }

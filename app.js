@@ -1,84 +1,135 @@
-window.onload = function () {
-    var users=[];
-    jQuery.ajax({
-        type: "GET",
-        url: "http://127.0.0.1:8080/Assignment/StudentManagementSystem/data.json",
-        success: function (data) {
-            var len = data.length;
-
-            // write into localStorage
-            for(var i=0; i<len; i++) {
-                var user = {
-                    'firstname': data[i].firstname,
-                    'lastname': data[i].lastname,
-                    'email': data[i].email,
-                    'location': data[i].location,
-                    'phone': data[i].phone,
-                    'batch': data[i].batch,
-                    'address': data[i].address,
-                    'previous_employer': data[i].previous_employer
-                };
-                users.push(user);
-            }
-            localStorage.a_users = JSON.stringify(users);
-
-            var html = "";
-
-            var length = document.getElementById("select").value;
-
-            // show 10 lines
-            for(var i=0; i<length; i++){
-                html += `
-                    <tr id="tr_${i}">
-                        <td>${data[i].firstname}</td>
-                        <td>${data[i].lastname}</td>
-                        <td>${data[i].email}</td>
-                        <td>${data[i].location}</td>
-                        <td>${data[i].phone}</td>
-                        <td>${data[i].batch}</td>
-                        <td>${data[i].address.communication}</td>
-                        <td>
-                            <button id="view_btn_${i}">More Detail</button>
-                            <button id="edit_btn_${i}">Edit</button>
-                            <button id="del_btn_${i}">Delete</button>
-                        </td>
-                    </tr>`;
-            };
-            jQuery("#tr_hdr").after(html);
-        },
-        error: function (err) {
-            console.log(err);
+function throttle(fn, wait) {
+    var time = Date.now();
+    return function() {
+        if ((time + wait - Date.now()) < 0) {
+            fn();
+            time = Date.now();
         }
+    }
+}
+
+var showAll = function () {
+    var html = "";
+    // var users=[];
+
+    var select_len = document.getElementById("select").value;
+    // 已经加载了多少个
+    var offset = jQuery("#tbl tr").slice(1).length;
+
+    // users = JSON.parse(localStorage.a_users);
+
+    // make it asyn to syn
+    var p = new Promise(function(resolve, reject){
+        resolve(localStorage.a_users);
+    });
+    p.then(function (data) {
+        users = JSON.parse(data);
     });
 
-    document.getElementById("select").addEventListener("change",function () {
-        var length = document.getElementById("select").value;
-        var html = "";
+    // show 10 lines
+    for(var i=0; i<select_len && (i+offset) < users.length; i++){
+        html += `
+                    <tr id="tr_${i+offset}">
+                        <td>${JSON.parse(localStorage.a_users)[i+offset].firstname}</td>
+                        <td>${JSON.parse(localStorage.a_users)[i+offset].lastname}</td>
+                        <td>${JSON.parse(localStorage.a_users)[i+offset].email}</td>
+                        <td>${JSON.parse(localStorage.a_users)[i+offset].location}</td>
+                        <td>${JSON.parse(localStorage.a_users)[i+offset].phone}</td>
+                        <td>${JSON.parse(localStorage.a_users)[i+offset].batch}</td>
+                        <td>${JSON.parse(localStorage.a_users)[i+offset].address.communication}</td>
+                        <td>
+                            <button id="view_btn_${i+offset}">More Detail</button>
+                            <button id="edit_btn_${i+offset}">Edit</button>
+                            <button id="del_btn_${i+offset}">Delete</button>
+                        </td>
+                    </tr>`;
+    };
+    // jQuery("#tr_hdr").after(html);
+    document.getElementById("tbl").insertAdjacentHTML('beforeend', html);
+}
 
-        $("#tbl tr").slice(1).remove();
+function showSearch(users) {
+    var html = "";
 
-        // show n lines
-        for(var i=0; i<length; i++){
-            html += `
+    for(var i=0; i<users.length; i++){
+        html += `
                     <tr id="tr_${i}">
-                        <td>${JSON.parse(localStorage.a_users)[i].firstname}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i].lastname}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i].email}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i].location}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i].phone}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i].batch}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i].address.communication}</td>
+                        <td>${users[i].firstname}</td>
+                        <td>${users[i].lastname}</td>
+                        <td>${users[i].email}</td>
+                        <td>${users[i].location}</td>
+                        <td>${users[i].phone}</td>
+                        <td>${users[i].batch}</td>
+                        <td>${users[i].address.communication}</td>
                         <td>
                             <button id="view_btn_${i}">More Detail</button>
                             <button id="edit_btn_${i}">Edit</button>
                             <button id="del_btn_${i}">Delete</button>
                         </td>
                     </tr>`;
-        };
-        jQuery("#tr_hdr").after(html);
-    });
+    };
+    jQuery("#tr_hdr").after(html);
+}
+
+function refreshTable() {
+    jQuery("#tbl tr").slice(1).remove();
+    showAll();
+}
+
+window.onload = function () {
+    // scroll function
+    window.addEventListener('scroll', scroll);
+
+    var users=[];
+    if(!localStorage.a_users){
+        jQuery.ajax({
+            type: "GET",
+            url: "http://127.0.0.1:8080/Assignment/Student%20Management%20System/data.json",
+            success: function (data) {
+                var len = data.length;
+
+                // write into localStorage
+                for(var i=0; i<len; i++) {
+                    var user = {
+                        'firstname': data[i].firstname,
+                        'lastname': data[i].lastname,
+                        'email': data[i].email,
+                        'location': data[i].location,
+                        'phone': data[i].phone,
+                        'batch': data[i].batch,
+                        'address': data[i].address,
+                        'previous_employer': data[i].previous_employer
+                    };
+                    users.push(user);
+                }
+                localStorage.a_users = JSON.stringify(users);
+            },
+            error: function (err) {
+                console.log(err);
+            }
+        });
+    }
+
+    showAll();
+    showAll = throttle(showAll, 1000);
 };
 
+//select diff items
+document.getElementById("select").addEventListener("change",function () {
+    refreshTable();
+
+    // scroll function
+    window.addEventListener('scroll', scroll);
+});
+
+// scroll function
+function scroll() {
+    var scrollY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop;
+    if ( (scrollY + window.innerHeight) >= (document.body.offsetHeight - 20)) {
+        showAll();
+    }
+}
+// view button
 jQuery(document).on('click', 'button[id^="view_btn_"]', function () {
     var tr_id = jQuery(this).attr('id').replace('view_btn_', 'tr_');
     var tr_details = tr_id.replace('tr_', 'tr_details_');
@@ -105,6 +156,7 @@ jQuery(document).on('click', 'button[id^="view_btn_"]', function () {
     }
 });
 
+// edit button
 jQuery(document).on('click', 'button[id^="edit_btn_"]', function () {
     var tr_id = jQuery(this).attr('id').replace('edit_btn_', 'tr_');
     var tr_details = tr_id.replace('tr_', 'tr_details_');
@@ -153,10 +205,13 @@ jQuery(document).on('click', 'button[id^="edit_btn_"]', function () {
             users_local[id].previous_employer = previous_employer_new;
 
             localStorage.a_users = JSON.stringify(users_local);
+
+            refreshTable();
         });
     }
 });
 
+// delete button
 jQuery(document).on('click', 'button[id^="del_btn_"]', function () {
     var tr_id = jQuery(this).attr('id').replace('del_btn_', 'tr_');
     var tr_details = tr_id.replace('tr_', 'tr_details_');
@@ -168,33 +223,69 @@ jQuery(document).on('click', 'button[id^="del_btn_"]', function () {
 
     jQuery("#"+tr_id).remove();
     jQuery("tr[id=" + tr_details +"]").remove();
+
+    refreshTable();
 });
 
+// add user
 jQuery(document).on('click', 'button[id="add"]', function () {
     var firstname_add = jQuery("#add_form #firstname").val();
+    jQuery("#add_form #firstname").val("");
     var lastname_add = jQuery("#add_form #lastname").val();
+    jQuery("#add_form #lastname").val("");
     var email_add = jQuery("#add_form #email").val();
+    jQuery("#add_form #email").val("");
     var location_add = jQuery("#add_form #location").val();
+    jQuery("#add_form #location").val("");
     location_add = location_add.split(",");
     var phone_add = jQuery("#add_form #phone").val();
+    jQuery("#add_form #phone").val("");
     var batch_add = jQuery("#add_form #batch").val();
+    jQuery("#add_form #batch").val("");
     var communication_add = jQuery("#add_form #communication").val();
+    jQuery("#add_form #communication").val("");
     var permanent_add = jQuery("#add_form #permanent").val();
+    jQuery("#add_form #permanent").val("");
     var previous_employer_add = jQuery("#add_form #previous_employer").val();
+    jQuery("#add_form #previous_employer").val("");
 
-    var users_local = JSON.parse(localStorage.a_users);
-    users_local.push({
-        firstname : firstname_add,
-        lastname : lastname_add,
-        email : email_add,
-        location : location_add,
-        phone : phone_add,
-        batch : batch_add,
-        address : {
-            communication : communication_add,
-            permanent : permanent_add
-        },
-        previous_employer : previous_employer_add
+    if(firstname_add && lastname_add && email_add) {
+        var new_user = {
+            firstname : firstname_add,
+            lastname : lastname_add,
+            email : email_add,
+            location : location_add,
+            phone : phone_add,
+            batch : batch_add,
+            address : {
+                communication : communication_add,
+                permanent : permanent_add
+            },
+            previous_employer : previous_employer_add
+        };
+        var users = JSON.parse(localStorage.a_users);
+        users.unshift(new_user);
+        localStorage.a_users = JSON.stringify(users);
+
+        refreshTable();
+    }
+
+});
+
+jQuery(document).on('click', 'button[id="search"]', function () {
+    var key = jQuery("#keyword").val().toUpperCase();
+    var users = JSON.parse(localStorage.a_users);
+    var result = [];
+
+    users.forEach(function (element) {
+        if (element.firstname.toUpperCase().includes(key) || element.lastname.toUpperCase().includes(key) ||
+            element.location.includes(key) || element.batch.toUpperCase().includes(key) ||
+            element.phone.includes(key)) {
+            result.push(element);
+        }
     });
-    localStorage.a_users = JSON.stringify(users_local);
+
+    $("#tbl tr").slice(1).remove();
+    showSearch(result);
+    window.removeEventListener('scroll', scroll, false);
 });
