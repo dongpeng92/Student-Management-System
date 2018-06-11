@@ -1,3 +1,4 @@
+
 function throttle(fn, wait) {
     var time = Date.now();
     return function() {
@@ -10,33 +11,24 @@ function throttle(fn, wait) {
 
 var showAll = function () {
     var html = "";
-    // var users=[];
 
     var select_len = document.getElementById("select").value;
     // 已经加载了多少个
     var offset = jQuery("#tbl tr").slice(1).length;
 
-    // users = JSON.parse(localStorage.a_users);
-
-    // make it asyn to syn
-    var p = new Promise(function(resolve, reject){
-        resolve(localStorage.a_users);
-    });
-    p.then(function (data) {
-        users = JSON.parse(data);
-    });
+    var users = JSON.parse(localStorage.a_users);
 
     // show 10 lines
     for(var i=0; i<select_len && (i+offset) < users.length; i++){
         html += `
                     <tr id="tr_${i+offset}">
-                        <td>${JSON.parse(localStorage.a_users)[i+offset].firstname}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i+offset].lastname}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i+offset].email}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i+offset].location}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i+offset].phone}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i+offset].batch}</td>
-                        <td>${JSON.parse(localStorage.a_users)[i+offset].address.communication}</td>
+                        <td>${users[i+offset].firstname}</td>
+                        <td>${users[i+offset].lastname}</td>
+                        <td>${users[i+offset].email}</td>
+                        <td>${users[i+offset].location}</td>
+                        <td>${users[i+offset].phone}</td>
+                        <td>${users[i+offset].batch}</td>
+                        <td>${users[i+offset].address.communication}</td>
                         <td>
                             <button id="view_btn_${i+offset}">More Detail</button>
                             <button id="edit_btn_${i+offset}">Edit</button>
@@ -44,8 +36,8 @@ var showAll = function () {
                         </td>
                     </tr>`;
     };
-    // jQuery("#tr_hdr").after(html);
     document.getElementById("tbl").insertAdjacentHTML('beforeend', html);
+
 }
 
 function showSearch(users) {
@@ -80,38 +72,23 @@ window.onload = function () {
     // scroll function
     window.addEventListener('scroll', scroll);
 
-    var users=[];
     if(!localStorage.a_users){
         jQuery.ajax({
             type: "GET",
             url: "http://127.0.0.1:8080/Assignment/Student%20Management%20System/data.json",
             success: function (data) {
-                var len = data.length;
-
-                // write into localStorage
-                for(var i=0; i<len; i++) {
-                    var user = {
-                        'firstname': data[i].firstname,
-                        'lastname': data[i].lastname,
-                        'email': data[i].email,
-                        'location': data[i].location,
-                        'phone': data[i].phone,
-                        'batch': data[i].batch,
-                        'address': data[i].address,
-                        'previous_employer': data[i].previous_employer
-                    };
-                    users.push(user);
-                }
-                localStorage.a_users = JSON.stringify(users);
+                localStorage.setItem("a_users", JSON.stringify(data));
+                showAll();
+                showAll = throttle(showAll, 1000);
             },
             error: function (err) {
                 console.log(err);
             }
         });
+    } else {
+        showAll();
+        showAll = throttle(showAll, 1000);
     }
-
-    showAll();
-    showAll = throttle(showAll, 1000);
 };
 
 //select diff items
